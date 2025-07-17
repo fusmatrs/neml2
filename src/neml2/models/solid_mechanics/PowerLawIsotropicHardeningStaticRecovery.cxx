@@ -65,7 +65,7 @@ PowerLawIsotropicHardeningStaticRecovery::set_value(bool out, bool dout_din, boo
   if (dout_din)
   {
     if (_h.is_dependent())
-      _h_dot.d(_h) = -_n * pow(abs(_h / _tau), _n - 1) / abs(_tau);
+      _h_dot.d(_h) = -_n * pow(_tau, -_n) * pow(abs(Scalar(_h)), _n - 1);
 
     if (const auto * const tau = nl_param("tau"))
       _h_dot.d(*tau) = _n * _h * pow(_tau, -1 - _n) * pow(abs(Scalar(_h)), _n - 1);
