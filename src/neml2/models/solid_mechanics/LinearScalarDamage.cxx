@@ -22,51 +22,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include "neml2/models/solid_mechanics/ScalarDamage.h"
+#include "neml2/models/solid_mechanics/LinearScalarDamage.h"
 #include "neml2/tensors/Scalar.h"
 
 namespace neml2
 {
+register_NEML2_object(LinearScalarDamage);
+
 OptionSet
-ScalarDamage::expected_options()
+LinearScalarDamage::expected_options()
 {
-  OptionSet options = Model::expected_options();
-  options.doc() = "Reduce effective stress by 1-damage ";
+  OptionSet options = ScalarDamage::expected_options();
+  options.doc() += " following a linear relationship, i.e., \\f$ \\varomega = Kt \\f$ where "
+                   "\\f$ K \\f$ is the damage modulus.";
 
-  options.set_input("effective_stress") = VariableName(STATE, "internal", "s");
-  options.set("effective_stress").doc() = "Effective stress";
+  options.set<bool>("define_second_derivatives") = true;
 
-  options.set_input("scalar_damage") = VariableName(STATE, "internal", "w");
-  options.set("scalar_damage").doc() = "Scalar Damage";
-
-  options.set_output("damage_stress") = VariableName(STATE, "internal", "d");
-  options.set("damage_stress").doc() = "Damage Stress";
+  options.set_parameter<TensorName<Scalar>>("damage_modulus");
+  options.set("damage_modulus").doc() = "Damage modulus";
 
   return options;
 }
 
-ScalarDamage::ScalarDamage(const OptionSet & options)
-  : Model(options),
-    _s(declare_input_variable<Scalar>("effective_stress")),
-    _w(declare_input_variable<Scalar>("scalar_damage")),
-    _sd(declare_output_variable<Scalar>("damage_effective_stress"))
+LinearScalarDamage::LinearScalarDamage(const OptionSet & options)
+  : ScalarDamage(options),
+    _K(declare_parameter<Scalar>("K", "damage_modulus"))
 {
 }
 
-
-ScalarDamage::set_value(bool out, bool dout_din, bool d2out_din2)
+void
+LinearScalarDamage::set_value(bool out, bool dout_din, bool d2out_din2)
 {
   if (out)
-    _sd = _s / (1-_w);
+    _w = _K + _w;
 
   if (dout_din)
+    //if (_s.is_dependent())
+    //  _w.d(_s) = 0;
+
+  if (d2out_din2)
   {
-    if (_s.is_dependent())
-      _sd.d(_s)= 1/(1-_w);
-    
-    if (_w.is_dependent())
-      _sd.d(_w) = _s * pow(1-_w,-2)
+    // zero
   }
-    
 }
 } // namespace neml2

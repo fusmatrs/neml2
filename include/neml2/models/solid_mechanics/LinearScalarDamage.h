@@ -22,51 +22,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#pragma once
+
 #include "neml2/models/solid_mechanics/ScalarDamage.h"
-#include "neml2/tensors/Scalar.h"
 
 namespace neml2
 {
-OptionSet
-ScalarDamage::expected_options()
+/**
+ * @brief Simple linear map between damage and time
+ *
+ */
+class LinearScalarDamage : public ScalarDamage
 {
-  OptionSet options = Model::expected_options();
-  options.doc() = "Reduce effective stress by 1-damage ";
+public:
+  static OptionSet expected_options();
 
-  options.set_input("effective_stress") = VariableName(STATE, "internal", "s");
-  options.set("effective_stress").doc() = "Effective stress";
+  LinearScalarDamage(const OptionSet & options);
 
-  options.set_input("scalar_damage") = VariableName(STATE, "internal", "w");
-  options.set("scalar_damage").doc() = "Scalar Damage";
+protected:
+  void set_value(bool out, bool dout_din, bool d2out_din2) override;
 
-  options.set_output("damage_stress") = VariableName(STATE, "internal", "d");
-  options.set("damage_stress").doc() = "Damage Stress";
-
-  return options;
-}
-
-ScalarDamage::ScalarDamage(const OptionSet & options)
-  : Model(options),
-    _s(declare_input_variable<Scalar>("effective_stress")),
-    _w(declare_input_variable<Scalar>("scalar_damage")),
-    _sd(declare_output_variable<Scalar>("damage_effective_stress"))
-{
-}
-
-
-ScalarDamage::set_value(bool out, bool dout_din, bool d2out_din2)
-{
-  if (out)
-    _sd = _s / (1-_w);
-
-  if (dout_din)
-  {
-    if (_s.is_dependent())
-      _sd.d(_s)= 1/(1-_w);
-    
-    if (_w.is_dependent())
-      _sd.d(_w) = _s * pow(1-_w,-2)
-  }
-    
-}
+  /// The linear damage modulus
+  const Scalar & _K;
+};
 } // namespace neml2

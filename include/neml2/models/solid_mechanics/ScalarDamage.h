@@ -38,10 +38,15 @@ public:
   ScalarDamage(const OptionSet & options);
 
 protected:
+  void set_value(bool out, bool dout_din, bool d2out_din2) override;
+
   /// Effective stress
   const Variable<Scalar> & _s;
 
   /// Scalar Damage
-  Variable<Scalar> & _w;
+  const Variable<Scalar> & _w;
+
+  /// Damaged stress
+  Variable<Scalar> & _sd;
 };
 } // namespace neml2
