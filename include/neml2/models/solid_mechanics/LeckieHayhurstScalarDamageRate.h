@@ -22,47 +22,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include "neml2/models/solid_mechanics/LinearScalarDamage.h"
-#include "neml2/tensors/Scalar.h"
+#pragma once
+
+#include "neml2/models/solid_mechanics/ScalarDamageRate.h"
 
 namespace neml2
 {
-register_NEML2_object(LinearScalarDamage);
-
-OptionSet
-LinearScalarDamage::expected_options()
+class LeckieHayhurstScalarDamageRate : public ScalarDamageRate
 {
-  OptionSet options = ScalarDamage::expected_options();
-  options.doc() += " following a linear relationship, i.e., \\f$ \\varomega = Kt \\f$ where "
-                   "\\f$ K \\f$ is the damage modulus.";
+public:
+  static OptionSet expected_options();
 
-  options.set<bool>("define_second_derivatives") = true;
+  LeckieHayhurstScalarDamageRate(const OptionSet & options);
 
-  options.set_parameter<TensorName<Scalar>>("damage_modulus");
-  options.set("damage_modulus").doc() = "Damage modulus";
+protected:
+  void set_value(bool out, bool dout_din, bool d2out_din2) override;
 
-  return options;
-}
+  /// Scalar damage variable
+  const Variable<Scalar> & _h;
 
-LinearScalarDamage::LinearScalarDamage(const OptionSet & options)
-  : ScalarDamage(options),
-    _K(declare_parameter<Scalar>("K", "damage_modulus"))
-{
-}
+  /// Rate of scalar damage
+  Variable<Scalar> & _h_dot;
 
-void
-LinearScalarDamage::set_value(bool out, bool dout_din, bool d2out_din2)
-{
-  if (out)
-    _w = _K + _w;
+  /// Effective stress
+  const Variable<Scalar> & _s;
 
-  if (dout_din)
-    //if (_s.is_dependent())
-    //  _w.d(_s) = 0;
-
-  if (d2out_din2)
-  {
-    // zero
-  }
-}
+  const Scalar & _A;
+  const Scalar & _zeta;
+  const Scalar & _phi;
+};
 } // namespace neml2

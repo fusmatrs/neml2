@@ -22,27 +22,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
-
-#include "neml2/models/solid_mechanics/ScalarDamage.h"
+#include "neml2/models/solid_mechanics/ScalarDamageRate.h"
+#include "neml2/tensors/Scalar.h"
 
 namespace neml2
 {
-/**
- * @brief Simple linear map between damage and time
- *
- */
-class LinearScalarDamage : public ScalarDamage
+OptionSet
+ScalarDamageRate::expected_options()
 {
-public:
-  static OptionSet expected_options();
+  OptionSet options = Model::expected_options();
+  options.doc() = "Rate form of scalar damage.";
 
-  LinearScalarDamage(const OptionSet & options);
+  options.set_input("scalar_damage") = VariableName(STATE, "internal", "w");
+  options.set("scalar_damage").doc() = "Scalar Damage variable";
 
-protected:
-  void set_value(bool out, bool dout_din, bool d2out_din2) override;
+  options.set_input("scalar_damage_rate");
+  options.set("scalar_damage_rate").doc() =
+      "Rate of scalar damage";
 
-  /// The linear damage modulus
-  const Scalar & _K;
-};
+  return options;
+}
+
+ScalarDamageRate::ScalarDamageRate(const OptionSet & options)
+  : Model(options),
+    _w(declare_input_variable<Scalar>("scalar_damage")),
+    _w_dot(declare_output_variable<Scalar>("scalar_damage_rate"))
+{
+}
+
 } // namespace neml2
