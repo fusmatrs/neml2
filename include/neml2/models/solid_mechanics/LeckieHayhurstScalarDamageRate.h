@@ -38,12 +38,6 @@ public:
 protected:
   void set_value(bool out, bool dout_din, bool d2out_din2) override;
 
-  /// Scalar damage variable
-  const Variable<Scalar> & _h;
-
-  /// Rate of scalar damage
-  Variable<Scalar> & _h_dot;
-
   /// Effective stress
   const Variable<Scalar> & _s;
 

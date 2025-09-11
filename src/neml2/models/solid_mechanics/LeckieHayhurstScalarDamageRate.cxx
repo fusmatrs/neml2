@@ -26,6 +26,7 @@
 #include "neml2/tensors/Scalar.h"
 #include "neml2/tensors/functions/pow.h"
 #include "neml2/tensors/functions/log.h"
+#include "neml2/tensors/functions/heaviside.h"
 
 namespace neml2
 {
@@ -66,10 +67,15 @@ LeckieHayhurstScalarDamageRate::set_value(bool out, bool dout_din, bool /*d2out_
 {
 
   const auto sp = pow(_s / _A,_zeta);
-  const auto dp = pow(1-_w,-_phi);
+  const auto dp = pow(1.0 -_w,-_phi);
+  // Trying to limit damage causes errors when time integrating.
+  //const auto w_lim = 0.99;
+  //const bool w_valid = _w->value() < w_lim;
 
   if (out)
-    _w_dot = sp * dp;
+  {
+      _w_dot = sp * dp; //* heaviside(w_lim-_w); // should be 0 if _w exceeds some limit
+  }
 
   if (dout_din)
   {
