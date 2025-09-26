@@ -27,7 +27,6 @@
 #include "neml2/tensors/functions/pow.h"
 #include "neml2/tensors/functions/heaviside.h"
 
-
 namespace neml2
 {
 register_NEML2_object(YieldFunctionDamage);
@@ -36,10 +35,11 @@ OptionSet
 YieldFunctionDamage::expected_options()
 {
   OptionSet options = Model::expected_options();
-  options.doc() =
-      "Classical macroscale plasticity yield function with damage, \\f$ f = \\frac{\\bar{\\sigma}}{1-\\omega} - \\sigma_y - h "
-      "\\f$, where \\f$ \\bar{\\sigma} \\f$ is the effective stress, \\omega is the scalar damage, \\f$ \\sigma_y \\f$ is the "
-      "yield stress, and \\f$ h \\f$ is the isotropic hardening.";
+  options.doc() = "Classical macroscale plasticity yield function with damage, \\f$ f = "
+                  "\\frac{\\bar{\\sigma}}{(1-\\omega)} - \\sigma_y - h "
+                  "\\f$, where \\f$ \\bar{\\sigma} \\f$ is the effective stress, \\omega is the "
+                  "scalar damage, \\f$ \\sigma_y \\f$ is the "
+                  "yield stress, and \\f$ h \\f$ is the isotropic hardening.";
 
   options.set<bool>("define_second_derivatives") = true;
 
@@ -57,7 +57,6 @@ YieldFunctionDamage::expected_options()
 
   options.set_input("scalar_damage") = VariableName(STATE, "internal", "w");
   options.set("scalar_damage").doc() = "Scalar Damage";
-
 
   return options;
 }
@@ -79,7 +78,7 @@ YieldFunctionDamage::set_value(bool out, bool dout_din, bool d2out_din2)
 {
   const auto wlim = 1;
   // Couldn't get working with bools, so using heavisides
-  auto wmod = (1 - _w)*heaviside(wlim-_w)  + wlim*heaviside(_w-wlim);
+  auto wmod = (1 - _w) * heaviside(wlim - _w) + wlim * heaviside(_w - wlim);
   auto _sd = _s / wmod;
 
   if (out)
@@ -104,7 +103,7 @@ YieldFunctionDamage::set_value(bool out, bool dout_din, bool d2out_din2)
       _f.d(*sy) = -std::sqrt(2.0 / 3.0) * I;
 
     if (_w.is_dependent())
-      _f.d(_w) = (std::sqrt(2.0 / 3.0) * I * _s / pow(wmod,2.0))*heaviside(wlim-_w);
+      _f.d(_w) = (std::sqrt(2.0 / 3.0) * I * _s / pow(wmod, 2.0)) * heaviside(wlim - _w);
   }
 
   if (d2out_din2)
