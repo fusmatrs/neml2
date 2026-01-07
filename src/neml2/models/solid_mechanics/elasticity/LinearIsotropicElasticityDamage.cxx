@@ -48,9 +48,8 @@ LinearIsotropicElasticityDamage::expected_options()
 
 LinearIsotropicElasticityDamage::LinearIsotropicElasticityDamage(const OptionSet & options)
   : ElasticityInterface<Elasticity, 2>(options),
-    _w(declare_input_variable<Scalar>("scalar_damage"),
-    _converter(_constant_types, _need_derivs)
-    )
+    _converter(_constant_types, _need_derivs),
+    _w(declare_input_variable<Scalar>("scalar_damage"))
 {
 }
 
@@ -62,6 +61,8 @@ LinearIsotropicElasticityDamage::set_value(bool out, bool dout_din, bool /*d2out
   const auto & [G0, dG] = G_and_dG ;
   const auto & K = K0 * (1-_w);
   const auto & G = G0 * (1-_w);
+  // const auto & dK = dK0 * (1-_w);
+  // const auto & dG = dG0 * (1-_w);
   const auto vf = _compliance ? 1 / (3 * K) : 3 * K;
   const auto df = _compliance ? 1 / (2 * G) : 2 * G;
 
