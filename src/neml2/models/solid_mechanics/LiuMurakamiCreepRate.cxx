@@ -78,34 +78,35 @@ LiuMurakamiCreepRate::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
 {
 
   // Get principal stresses
-  const auto & [eigvals, eigvecs] = linalg::eigh(_S);
-  const auto & s1 = Scalar(eigvals[-1]);
+  //const auto & [eigvals, eigvecs] = linalg::eigh(_S);
+  //const auto & s1 = Scalar(eigvals[-1]);
 
   // Get von mises equivalent stress
-  const auto eps = machine_precision(_S.scalar_type());
-  auto S = SR2(_S).dev();
-  Scalar vm = std::sqrt(3.0 / 2.0) * S.norm(eps);
-  double pi = 3.1415926535;
+  // const auto eps = machine_precision(_S.scalar_type());
+  // auto S = SR2(_S).dev();
+  // Scalar vm = std::sqrt(3.0 / 2.0) * S.norm(eps);
+  // double pi = 3.1415926535;
 
   if (out)
   {
-    _Ec_dot =  SR2((3.0/2.0)*_B*pow(vm,_n-1)*S*exp(((2*(_n+1))/(pi*sqrt(1+(3.0/_n))))*pow(s1/vm,2.0)*pow(_w,3.0/2.0)));
+    //_Ec_dot =  SR2((3.0/2.0)*_B*pow(vm,_n-1)*S*exp(((2*(_n+1))/(pi*sqrt(1+(3.0/_n))))*pow(s1/vm,2.0)*pow(_w,3.0/2.0)));
+     _Ec_dot = _S*0.1;
   }
 
   if (dout_din)
   {
-    if (_S.is_dependent()) //Right now not sure how to handle stress dependence
-    //as damage stress derivative is a pain with s1 eigenvalue
-      _Ec_dot.d(_S) = SR2::identity_map(S.options()) * Scalar((3.0/2.0)*_B*pow(vm,_n-1)*exp(((2*(_n+1))/(pi*sqrt(1+(3.0/_n))))*pow(s1/vm,2.0)*pow(_w,3.0/2.0)));
+    // if (_S.is_dependent()) //Right now not sure how to handle stress dependence
+    // //as damage stress derivative is a pain with s1 eigenvalue
+    //   _Ec_dot.d(_S) = SR2::identity_map(S.options()) * Scalar((3.0/2.0)*_B*pow(vm,_n-1)*exp(((2*(_n+1))/(pi*sqrt(1+(3.0/_n))))*pow(s1/vm,2.0)*pow(_w,3.0/2.0)));
 
-    if (_w.is_dependent())
-      _Ec_dot.d(_w) = SR2((9*_B*(_n+1)*S*pow(s1,2.0)*sqrt(_w)*pow(vm,_n-3.0)*exp(((2*(_n+1))/(pi*sqrt(1+(3.0/_n))))*pow(s1/vm,2.0)*pow(_w,3.0/2.0)))/(2*pi*sqrt((_n+3/_n))));
+    // if (_w.is_dependent())
+    //   _Ec_dot.d(_w) = SR2((9*_B*(_n+1)*S*pow(s1,2.0)*sqrt(_w)*pow(vm,_n-3.0)*exp(((2*(_n+1))/(pi*sqrt(1+(3.0/_n))))*pow(s1/vm,2.0)*pow(_w,3.0/2.0)))/(2*pi*sqrt((_n+3/_n))));
 
-    if (const auto * const B = nl_param("B"))
-      _Ec_dot.d(*B) = SR2((3.0/2.0)*pow(vm,_n-1)*S*exp(((2*(_n+1))/(pi*sqrt(1+(3.0/_n))))*pow(s1/vm,2.0)*pow(_w,3.0/2.0)));
+    // if (const auto * const B = nl_param("B"))
+    //   _Ec_dot.d(*B) = SR2((3.0/2.0)*pow(vm,_n-1)*S*exp(((2*(_n+1))/(pi*sqrt(1+(3.0/_n))))*pow(s1/vm,2.0)*pow(_w,3.0/2.0)));
 
-    if (const auto * const n = nl_param("n"))
-      _Ec_dot.d(*n) = SR2(3.0*_B*S*pow(vm,_n-3)*exp(((2*(_n+1))/(pi*sqrt(1+(3/_n))))*pow(s1/vm,2.0)*pow(_w,3.0/2.0))*(pi*pow(_n,2.0)*pow((_n+3)/_n,3.0/2.0)*pow(vm,2.0)*log(vm) + (2*pow(_n,2.0)+9*_n +3)*pow(s1,2.0)*pow(_w,3.0/2.0) ) );
+    // if (const auto * const n = nl_param("n"))
+    //   _Ec_dot.d(*n) = SR2(3.0*_B*S*pow(vm,_n-3)*exp(((2*(_n+1))/(pi*sqrt(1+(3/_n))))*pow(s1/vm,2.0)*pow(_w,3.0/2.0))*(pi*pow(_n,2.0)*pow((_n+3)/_n,3.0/2.0)*pow(vm,2.0)*log(vm) + (2*pow(_n,2.0)+9*_n +3)*pow(s1,2.0)*pow(_w,3.0/2.0) ) );
 
     // if (const auto * const q = nl_param("q"))
     //    _w_dot.d(*q) = (_A/pow(_q,2.0))*pow(sd,_p)*exp(_q*(_w-1))*(exp(_q)*(_q*_w -1)+_q + 1);

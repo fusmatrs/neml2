@@ -24,25 +24,47 @@
 
 #pragma once
 
-#include "neml2/models/solid_mechanics/ScalarDamageRate.h"
+#include "neml2/models/Model.h"
 
 namespace neml2
 {
-class LeckieHayhurstScalarDamageRate : public ScalarDamageRate
+class Scalar;
+
+class OrugantiCreepRate : public Model
 {
 public:
   static OptionSet expected_options();
 
-  LeckieHayhurstScalarDamageRate(const OptionSet & options);
+  OrugantiCreepRate(const OptionSet & options);
 
 protected:
+  /// The value of the yield function
   void set_value(bool out, bool dout_din, bool d2out_din2) override;
 
-  /// Effective stress
-  const Variable<Scalar> & _s;
+  /// Input Stress
+  const Variable<SR2> & _S;
 
-  const Scalar & _A;
-  const Scalar & _zeta;
-  const Scalar & _phi;
+  /// Input equivalent stress (should be from same stress)
+  const Variable<Scalar> & _seq;
+
+  /// Input Temeprature
+  const Variable<Scalar> & _T;
+
+  /// Input MX evolution
+  const Variable<Scalar> & _wp;
+
+  /// Input subgrain evolution
+  const Variable<Scalar> & _ws;
+
+  /// Input primary strain hardening (isotropic)
+  const Variable<Scalar> & _k;
+
+  const Scalar & _hstar;
+  const Scalar & _edotprime;
+  const Scalar & _qc;
+
+  /// Creep strain rate
+  Variable<SR2> & _Ec_dot;
+
 };
 } // namespace neml2

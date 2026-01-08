@@ -22,12 +22,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include "neml2/models/solid_mechanics/LiuMurakamiScalarDamageRate.h"
+#include "neml2/models/solid_mechanics/damage/LiuMurakamiScalarDamageRate.h"
 #include "neml2/tensors/Scalar.h"
 #include "neml2/tensors/SR2.h"
 #include "neml2/tensors/functions/pow.h"
 #include "neml2/tensors/functions/exp.h"
 #include "neml2/tensors/functions/log.h"
+#include "neml2/tensors/functions/dev.h"
+#include "neml2/tensors/functions/norm.h"
 #include "neml2/tensors/functions/heaviside.h"
 #include "neml2/tensors/functions/linalg/eigh.h"
 
@@ -71,21 +73,20 @@ void
 LiuMurakamiScalarDamageRate::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
 {
 
-  // Get principal stresses
-  const auto & [eigvals, eigvecs] = linalg::eigh(_S);
-  const auto & s1 = Scalar(eigvals[-1]);
+//   // Get principal stresses
+   // const auto & [eigvals, eigvecs] = linalg::eigh(_S());
+   // const auto & s1 = eigvals[-1];
 
-  // Get von mises equivalent stress
-  const auto eps = machine_precision(_S.scalar_type());
-  auto S = SR2(_S).dev();
-  Scalar vm = std::sqrt(3.0 / 2.0) * S.norm(eps);
-
-  // Get the 'Damage stress'
-  Scalar sd = _alpha*vm + (1-_alpha)*s1;
+//   // Get von mises equivalent stress
+//    const auto eps = machine_precision(_S.scalar_type());
+//    auto S = neml2::dev(_S());
+//    auto vm = std::sqrt(3.0 / 2.0) * neml2::norm(S, eps);
+//   // Get the 'Damage stress'
+//   Scalar sd = _alpha*vm + (1-_alpha)*Scalar(s1);
 
   if (out)
   {
-    _w_dot =  (_A/_q)*(1-exp(-_q))*pow(sd,_p)*exp(_q*_w);
+    //_w_dot =  ;//(_A/_q)*(1-exp(-_q))*pow(sd,_p)*exp(_q*_w);
   }
 
   if (dout_din)
@@ -94,20 +95,20 @@ LiuMurakamiScalarDamageRate::set_value(bool out, bool dout_din, bool /*d2out_din
     // as damage stress derivative is a pain with s1 eigenvalue
     //   _w_dot.d(_s) = (_zeta * dp * sp) / _s;
 
-    if (_w.is_dependent())
-       _w_dot.d(_w) = _A*(exp(_q)-1)*exp(_q*(_w-1))*pow(sd,_p);
+   //  if (_w.is_dependent())
+   //     _w_dot.d(_w) = _A*(exp(_q)-1)*exp(_q*(_w-1))*pow(sd,_p);
 
-    if (const auto * const A = nl_param("A"))
-       _w_dot.d(*A) = (1/_q)*(1-exp(-_q))*pow(sd,_p)*exp(_q*_w);
+   //  if (const auto * const A = nl_param("A"))
+   //     _w_dot.d(*A) = (1/_q)*(1-exp(-_q))*pow(sd,_p)*exp(_q*_w);
 
-    if (const auto * const p = nl_param("p"))
-       _w_dot.d(*p) = (_A/_q)*(exp(_q)-1)*pow(sd,_p)*exp(_q*(_w-1))*log(sd);
+   //  if (const auto * const p = nl_param("p"))
+   //     _w_dot.d(*p) = (_A/_q)*(exp(_q)-1)*pow(sd,_p)*exp(_q*(_w-1))*log(sd);
 
-    if (const auto * const q = nl_param("q"))
-       _w_dot.d(*q) = (_A/pow(_q,2.0))*pow(sd,_p)*exp(_q*(_w-1))*(exp(_q)*(_q*_w -1)+_q + 1);
+   //  if (const auto * const q = nl_param("q"))
+   //     _w_dot.d(*q) = (_A/pow(_q,2.0))*pow(sd,_p)*exp(_q*(_w-1))*(exp(_q)*(_q*_w -1)+_q + 1);
       
-    if (const auto * const alpha = nl_param("alpha"))
-       _w_dot.d(*alpha) = (_A/_q)*_p*(exp(_q)-1)*exp(_q*(_w-1))*(vm-sd)*pow(sd,_p-1);
+   //  if (const auto * const alpha = nl_param("alpha"))
+   //     _w_dot.d(*alpha) = (_A/_q)*_p*(exp(_q)-1)*exp(_q*(_w-1))*(vm-sd)*pow(sd,_p-1);
 
       }
 }

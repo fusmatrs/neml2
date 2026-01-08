@@ -65,8 +65,8 @@ void
 SinhPlasticFlowRate::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
 {
   // Compute the Sinh approximation of the yield surface
-  auto Hf = heaviside(Scalar(_f));
-  auto f_abs = abs(Scalar(_f));
+  auto Hf = heaviside(_f());
+  auto f_abs = abs(_f());
   auto gamma_dot_m = _alpha * sinh( f_abs / _beta );
   auto gamma_dot = gamma_dot_m * Hf;
 

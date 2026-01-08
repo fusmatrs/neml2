@@ -20,30 +20,29 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.s
+// THE SOFTWARE.
 
 #pragma once
 
-#include "neml2/models/solid_mechanics/ScalarDamageRate.h"
+#include "neml2/models/solid_mechanics/damage/ScalarDamageRate.h"
 
 namespace neml2
 {
-class LiuMurakamiScalarDamageRate : public ScalarDamageRate
+class LeckieHayhurstScalarDamageRate : public ScalarDamageRate
 {
 public:
   static OptionSet expected_options();
 
-  LiuMurakamiScalarDamageRate(const OptionSet & options);
+  LeckieHayhurstScalarDamageRate(const OptionSet & options);
 
 protected:
   void set_value(bool out, bool dout_din, bool d2out_din2) override;
 
-  /// Stress
-  const Variable<SR2> & _S;
+  /// Effective stress
+  const Variable<Scalar> & _s;
 
   const Scalar & _A;
-  const Scalar & _p;
-  const Scalar & _q;
-  const Scalar & _alpha;
+  const Scalar & _zeta;
+  const Scalar & _phi;
 };
 } // namespace neml2
