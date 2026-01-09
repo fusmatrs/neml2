@@ -37,8 +37,8 @@ SubgrainEvolution::expected_options()
 {
   OptionSet options = ScalarDamageRate::expected_options();
   options.doc() =
-      "Subgrain evolution from Oruganti et al, \\f$ \\dot{\\omega} = \\left( \\right)^\\zeta"
-      "\\left(1 - \\omega \\right)^-\\phi";
+      "Subgrain evolution from Oruganti et al (2011), \\f$ \\dot{D}_{S} = \\frac{\\dot{\\varepsilon}}{S_{i}}"
+      "\\left(K_{S1} - K_{S2}e^{-Q_{S}/RT} \\right) \\left(1- D_{S} \\right)^{2} \\f$";
 
   options.set_input("temperature") = VariableName(STATE, "T");
   options.set("temperature").doc() = "Temperature in K";
