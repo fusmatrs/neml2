@@ -28,8 +28,8 @@
 #include "neml2/tensors/functions/pow.h"
 #include "neml2/tensors/functions/exp.h"
 #include "neml2/tensors/functions/log.h"
-#include "neml2/tensors/functions/dev.h"
-#include "neml2/tensors/functions/norm.h"
+// #include "neml2/tensors/functions/dev.h"
+// #include "neml2/tensors/functions/norm.h"
 #include "neml2/tensors/functions/heaviside.h"
 #include "neml2/tensors/functions/linalg/eigh.h"
 

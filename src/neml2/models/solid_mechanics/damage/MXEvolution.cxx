@@ -68,7 +68,7 @@ MXEvolution::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
 {
   // Gas Constant
   const auto R = 8.31446261815324; //JK-1mol-1
-  auto et = exp(-_qp/(R*_T()));
+  auto et = exp(-_qp/(R*_T));
 
   if (out)
   {
@@ -78,7 +78,7 @@ MXEvolution::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
   if (dout_din)
   {
     if (_T.is_dependent())
-      _w_dot.d(_T) =  ((_kp*_qp)/(pow(_pi,3.0)*R*pow(_T(),2.0)))*et*pow(1.0-_w,4.0);
+      _w_dot.d(_T) =  ((_kp*_qp)/(pow(_pi,3.0)*R*pow(_T,2.0)))*et*pow(1.0-_w,4.0);
 
     if (_w.is_dependent())
       _w_dot.d(_w) = ((-4.0*_kp)/pow(_pi,3.0))*et*pow(1.0-_w,3.0);

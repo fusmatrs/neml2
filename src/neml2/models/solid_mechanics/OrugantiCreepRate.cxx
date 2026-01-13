@@ -30,10 +30,10 @@
 #include "neml2/tensors/functions/sinh.h"
 #include "neml2/tensors/functions/cosh.h"
 #include "neml2/tensors/functions/sqrt.h"
-#include "neml2/tensors/functions/dev.h"
-#include "neml2/tensors/functions/norm.h"
-#include "neml2/tensors/functions/outer.h"
-#include "neml2/tensors/functions/imap.h"
+//#include "neml2/tensors/functions/dev.h"
+//#include "neml2/tensors/functions/norm.h"
+//#include "neml2/tensors/functions/outer.h"
+//#include "neml2/tensors/functions/imap.h"
 #include "neml2/tensors/functions/linalg/eigh.h"
 
 namespace neml2
@@ -102,53 +102,53 @@ OrugantiCreepRate::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
 {
 
   // Get deviatoric stress
-  auto S = neml2::dev(_S());
+  auto S = SR2(_S).dev();
 
   const auto R = 8.31446261815324; // JK-1mol-1
-  auto et = exp(-_qc / (R * _T()));
+  auto et = exp(-_qc / (R * _T));
   auto hyp = (_seq*(1.0-(_hstar*(1.0-_ws))))/(_k*(1.0-_wp));
-  auto dS = SR2::ones_like(_S())-(1.0/3.0)*SR2::identity(_S.options());
+  auto dS = SR2::ones_like(_S)-(1.0/3.0)*SR2::identity(_S.options());
 
 
   if (out)
   {
-    _Ec_dot = SR2((3.0/2.0)*(S/_seq) * _edotprime * et * sinh(hyp),_S.dynamic_sizes(), _S.intmd_dim() );
+    _Ec_dot = SR2((3.0/2.0)*(S/_seq) * _edotprime * et * sinh(hyp));
   }
 
   if (dout_din)
   {
     //auto I = imap_v<SR2>(_S.options());
     auto I =SR2::identity(_S.options());
-    auto dSds = SR2(dS*(3.0/2.0)*(1.0/_seq) * _edotprime * et * sinh((_seq*(1.0-(_hstar*(1.0-_ws))))/(_k*(1.0-_wp))),_S.dynamic_sizes(), _S.intmd_dim() );
+    auto dSds = SR2(dS*(3.0/2.0)*(1.0/_seq) * _edotprime * et * sinh((_seq*(1.0-(_hstar*(1.0-_ws))))/(_k*(1.0-_wp))));
 
     if (_S.is_dependent()) 
       
-      _Ec_dot.d(_S) =  outer(dSds,I);
+      _Ec_dot.d(_S) = dSds.outer(I);
 
     if (_seq.is_dependent())
-      _Ec_dot.d(_seq) = SR2(-(3.0/2.0)*_edotprime*S*et*((_k*(_wp-1)*sinh(hyp))+((_hstar*_seq*(_ws-1)+_seq)*cosh(hyp)))/(_k*(_wp-1)*pow(_seq(),2.0)),_S.dynamic_sizes(), _S.intmd_dim() );
+      _Ec_dot.d(_seq) = SR2(-(3.0/2.0)*_edotprime*S*et*((_k*(_wp-1)*sinh(hyp))+((_hstar*_seq*(_ws-1)+_seq)*cosh(hyp)))/(_k*(_wp-1)*pow(_seq,2.0)));
      
 
     if (_T.is_dependent())
-      _Ec_dot.d(_T) = SR2((3.0/2.0)*(S/(_seq*R*pow(_T(),2.0))) *_qc* _edotprime * et * sinh(hyp),_S.dynamic_sizes(), _S.intmd_dim() );
+      _Ec_dot.d(_T) = SR2((3.0/2.0)*(S/(_seq*R*pow(_T,2.0))) *_qc* _edotprime * et * sinh(hyp));
   
     if (_wp.is_dependent())
-      _Ec_dot.d(_wp) = SR2((3.0/2.0)*_edotprime*S*(_hstar*(_ws-1)+1)*et*cosh(hyp) / (_k*pow(1.0-_wp,2.0)) ,_S.dynamic_sizes(), _S.intmd_dim() );
+      _Ec_dot.d(_wp) = SR2((3.0/2.0)*_edotprime*S*(_hstar*(_ws-1)+1)*et*cosh(hyp) / (_k*pow(1.0-_wp,2.0)) );
     
     if (_ws.is_dependent())
-      _Ec_dot.d(_ws) = SR2((3.0/2.0)*_edotprime*_hstar*S*et*cosh(hyp) /(_k-_k*_wp),_S.dynamic_sizes(), _S.intmd_dim() );
+      _Ec_dot.d(_ws) = SR2((3.0/2.0)*_edotprime*_hstar*S*et*cosh(hyp) /(_k-_k*_wp) );
    
     if (_k.is_dependent())
-      _Ec_dot.d(_k) = SR2((3.0/2.0)*_edotprime*S *(_hstar*(_ws-1)+1)*et*cosh(hyp) / (pow(_k(),2.0)*(_wp-1)),_S.dynamic_sizes(), _S.intmd_dim() );
+      _Ec_dot.d(_k) = SR2((3.0/2.0)*_edotprime*S *(_hstar*(_ws-1)+1)*et*cosh(hyp) / (pow(_k,2.0)*(_wp-1)) );
       
     if (const auto * const hstar = nl_param("hstar"))
-      _Ec_dot.d(*hstar) = SR2((-3.0/2.0)*_edotprime*S*(_ws-1)*et*cosh(hyp) / (_k*(_wp-1)),_S.dynamic_sizes(), _S.intmd_dim() );
+      _Ec_dot.d(*hstar) = SR2((-3.0/2.0)*_edotprime*S*(_ws-1)*et*cosh(hyp) / (_k*(_wp-1)));
 
     if (const auto * const edotprime = nl_param("edotprime"))
-      _Ec_dot.d(*edotprime) = SR2((3.0/2.0)*(S/_seq) * et * sinh(hyp),_S.dynamic_sizes(), _S.intmd_dim() );
+      _Ec_dot.d(*edotprime) = SR2((3.0/2.0)*(S/_seq) * et * sinh(hyp) );
 
     if (const auto * const qc = nl_param("qc"))
-      _Ec_dot.d(*qc) = SR2((-3.0/2.0)*(S/(_seq*R*_T())) * _edotprime * et * sinh(hyp),_S.dynamic_sizes(), _S.intmd_dim() );     
+      _Ec_dot.d(*qc) = SR2((-3.0/2.0)*(S/(_seq*R*_T)) * _edotprime * et * sinh(hyp) );     
 
   }
 }

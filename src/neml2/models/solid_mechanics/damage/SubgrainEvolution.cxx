@@ -74,7 +74,7 @@ SubgrainEvolution::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
 {
   // Gas Constant
   const auto R = 8.31446261815324; // JK-1mol-1
-  auto et = exp(-_qs / (R * _T()));
+  auto et = exp(-_qs / (R * _T));
 
   if (out)
   {
@@ -84,7 +84,7 @@ SubgrainEvolution::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
   if (dout_din)
   {
     if (_T.is_dependent())
-      _w_dot.d(_T) = (_edot / (_si*R*pow(_T(),2.0))) * _ks2 * et * _qs * pow(1.0 - _w, 2.0);
+      _w_dot.d(_T) = (_edot / (_si*R*pow(_T,2.0))) * _ks2 * et * _qs * pow(1.0 - _w, 2.0);
 
     if (_edot.is_dependent())
       _w_dot.d(_edot) =(1.0/ _si) * (_ks1 + _ks2 * et) * pow(1.0 - _w, 2.0);
@@ -102,7 +102,7 @@ SubgrainEvolution::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
       _w_dot.d(*Si) = (-_edot / pow(_si,2.0)) * (_ks1 + _ks2 * et) * pow(1.0 - _w, 2.0);
 
     if (const auto * const Qs = nl_param("Qs"))
-      _w_dot.d(*Qs) = (_edot / (_si*R*_T())) * _ks2 * et * pow(1.0 - _w, 2.0);
+      _w_dot.d(*Qs) = (_edot / (_si*R*_T)) * _ks2 * et * pow(1.0 - _w, 2.0);
   }
 }
 } // namespace neml2
