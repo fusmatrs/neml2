@@ -8,6 +8,8 @@
     input_SR2_values = 'S'
     output_SR2_names = 'state/internal/Ec_rate'
     output_SR2_values = 'er'
+    check_derivatives = true
+    #check_second_derivatives = true
   []
 []
 

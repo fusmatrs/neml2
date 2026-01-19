@@ -72,25 +72,25 @@ MXEvolution::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
 
   if (out)
   {
-      _w_dot = (_kp/pow(_pi,3.0))*et*pow(1.0-_w,4.0);
+      _w_dot = (_kp/(3.0*pow(_pi,3.0)))*et*pow(1.0-_w,4.0);
   }
 
   if (dout_din)
   {
     if (_T.is_dependent())
-      _w_dot.d(_T) =  ((_kp*_qp)/(pow(_pi,3.0)*R*pow(_T,2.0)))*et*pow(1.0-_w,4.0);
+      _w_dot.d(_T) =  ((_kp*_qp)/(3.0*pow(_pi,3.0)*R*pow(_T,2.0)))*et*pow(1.0-_w,4.0);
 
     if (_w.is_dependent())
-      _w_dot.d(_w) = ((-4.0*_kp)/pow(_pi,3.0))*et*pow(1.0-_w,3.0);
+      _w_dot.d(_w) = ((-4.0*_kp)/(3.0*pow(_pi,3.0)))*et*pow(1.0-_w,3.0);
 
     if (const auto * const Kp = nl_param("Kp"))
-      _w_dot.d(*Kp) = (1.0/pow(_pi,3.0))*et*pow(1.0-_w,4.0);
+      _w_dot.d(*Kp) = (1.0/(3.0*pow(_pi,3.0)))*et*pow(1.0-_w,4.0);
 
     if (const auto * const Pi = nl_param("Pi"))
-      _w_dot.d(*Pi) = -3.0*(_kp/pow(_pi,4.0))*et*pow(1.0-_w,4.0);
+      _w_dot.d(*Pi) = -3.0*(_kp/(3.0*pow(_pi,4.0)))*et*pow(1.0-_w,4.0);
     
     if (const auto * const Qp = nl_param("Qp"))
-      _w_dot.d(*Qp) = (-_kp/(pow(_pi,3.0)*R*_T))*et*pow(1.0-_w,4.0);
+      _w_dot.d(*Qp) = (-_kp/(3.0*pow(_pi,3.0)*R*_T))*et*pow(1.0-_w,4.0);
   }
 }
 } // namespace neml2
