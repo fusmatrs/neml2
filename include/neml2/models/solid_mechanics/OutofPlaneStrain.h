@@ -28,20 +28,18 @@
 
 namespace neml2
 {
-class SR2;
 class Scalar;
 
-class PlaneStress : public Model
+class OutofPlaneStrain : public Model
 {
 public:
   static OptionSet expected_options();
 
-  PlaneStress(const OptionSet & options);
+  OutofPlaneStrain(const OptionSet & options);
 
 protected:
   void set_value(bool out, bool dout_din, bool d2out_din2) override;
   
-  const Variable<SR2> & _E;
   const Variable<Scalar> & _e33;
   Variable<SR2> & _Et;
   

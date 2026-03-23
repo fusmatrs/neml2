@@ -22,28 +22,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
-
-#include "neml2/models/Model.h"
+#include "neml2/models/solid_mechanics/OutOfPlaneStress.h"
+#include "neml2/tensors/SR2.h"
+#include "neml2/tensors/Scalar.h"
+#include "neml2/tensors/mandel_notation.h"
+#include "neml2/tensors/functions/stack.h"
 
 namespace neml2
 {
-class SR2;
-class Scalar;
+register_NEML2_object(OutOfPlaneStress);
 
-class PlaneStress : public Model
+OptionSet
+OutOfPlaneStress::expected_options()
 {
-public:
-  static OptionSet expected_options();
+  OptionSet options = Model::expected_options();
+  options.doc() = "Spit out the out of plane stress s33";
 
-  PlaneStress(const OptionSet & options);
+  options.set_input("stress") = VariableName(STATE, "S");
+  options.set("stress").doc() = "Stress";
 
-protected:
-  void set_value(bool out, bool dout_din, bool d2out_din2) override;
-  
-  const Variable<SR2> & _E;
-  const Variable<Scalar> & _e33;
-  Variable<SR2> & _Et;
-  
-};
+  options.set_output("stress_33") = VariableName(STATE, "internal", "E_trial");
+  options.set("stress_33").doc() = "Out of plane stress";
+
+  return options;
+}
+
+OutOfPlaneStress::OutOfPlaneStress(const OptionSet & options)
+  : Model(options),
+    _S(declare_input_variable<SR2>("stress")),
+    _s33(declare_output_variable<Scalar>("stress_33"))
+{
+}
+
+void
+OutOfPlaneStress::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
+{
+
+  if (out)
+  {
+      // Copy strain
+      const auto comps = at::split(_S, 1, -1);
+      _s33 = Scalar(comps[2].reshape(_s33.batch_sizes().concrete()),_s33.batch_sizes());
+ 
+}
+
+  if (dout_din)
+  {
+    _s33.d(_S) = SR2::create({0, 0, 1, 0, 0, 0},_S.options());
+        
+  }
+}
 } // namespace neml2

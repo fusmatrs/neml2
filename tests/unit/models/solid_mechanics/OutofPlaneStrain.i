@@ -4,8 +4,8 @@
     model = 'model'
     input_Scalar_names = 'state/internal/e33'
     input_Scalar_values = 'e33'
-    input_SR2_names = 'FORCES/E'
-    input_SR2_values = 'strains'#'E'
+    #input_SR2_names = 'FORCES/E'
+    #input_SR2_values = 'strains'#'E'
     output_SR2_names = 'state/internal/E_trial'
     output_SR2_values = 'out_strains'#'Et'
   []
@@ -18,7 +18,7 @@
   []
   [Et]
     type = FillSR2
-    values = '10. 10. 5. 0. 0. 10.'
+    values = '0. 0. 5. 0. 0. 0.'
   []
   [strains]
     type = LinspaceSR2
@@ -44,8 +44,7 @@
 
 [Models]
   [model]
-    type = PlaneStress
+    type = OutofPlaneStrain
     e33_strain = 'state/internal/e33'
-    strain = 'FORCES/E'
   []
 []

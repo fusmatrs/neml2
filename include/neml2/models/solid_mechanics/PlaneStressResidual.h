@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "neml2/tensors/tensors.h"
 #include "neml2/models/Model.h"
 
 namespace neml2
@@ -31,19 +32,24 @@ namespace neml2
 class SR2;
 class Scalar;
 
-class PlaneStress : public Model
+class PlaneStressResidual : public Model
 {
 public:
   static OptionSet expected_options();
 
-  PlaneStress(const OptionSet & options);
+  PlaneStressResidual(const OptionSet & options);
 
 protected:
   void set_value(bool out, bool dout_din, bool d2out_din2) override;
-  
-  const Variable<SR2> & _E;
+
+  /// Current stress value
+  const Variable<SR2> & _S;
+
+  /// Out of plane strain 
   const Variable<Scalar> & _e33;
-  Variable<SR2> & _Et;
-  
+
+  /// Residual
+  Variable<Scalar> & _r;
 };
+
 } // namespace neml2

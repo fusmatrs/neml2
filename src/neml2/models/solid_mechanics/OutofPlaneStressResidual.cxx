@@ -22,28 +22,57 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#pragma once
-
-#include "neml2/models/Model.h"
+#include "neml2/models/solid_mechanics/OutofPlaneStressResidual.h"
+#include "neml2/tensors/SR2.h"
+#include "neml2/tensors/Scalar.h"
 
 namespace neml2
 {
-class SR2;
-class Scalar;
+register_NEML2_object(OutofPlaneStressResidual);
 
-class PlaneStress : public Model
+OptionSet
+OutofPlaneStressResidual::expected_options()
 {
-public:
-  static OptionSet expected_options();
+  OptionSet options = Model::expected_options();
+  options.doc() =
+      "Define the plane stress residual, i.e. s33=0";
 
-  PlaneStress(const OptionSet & options);
+  NonlinearSystem::enable_automatic_scaling(options);
 
-protected:
-  void set_value(bool out, bool dout_din, bool d2out_din2) override;
-  
-  const Variable<SR2> & _E;
-  const Variable<Scalar> & _e33;
-  Variable<SR2> & _Et;
-  
-};
+  options.set_input("oop_stress")= VariableName(STATE, "internal", "s33");
+  options.set("oop_stress").doc() = "Current stress";
+
+  return options;
+}
+
+OutofPlaneStressResidual::OutofPlaneStressResidual(const OptionSet & options)
+  : Model(options),
+    _s33(declare_input_variable<Scalar>("oop_stress")),
+    _r(declare_output_variable<Scalar>(_s33.name().remount(RESIDUAL)))
+{
+}
+
+
+void
+OutofPlaneStressResidual::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
+{
+  auto I = Scalar::identity_map(_s33.options());
+
+  if (out)
+    _r = Scalar(_s33);
+
+  if (dout_din)
+  {
+    _r.d(_s33) = I;
+
+
+    if (currently_solving_nonlinear_system())
+      return;
+
+    // _r.d(_sn) = -I;
+    // _r.d(_t) = -_ds_dt;
+    // _r.d(_tn) = _ds_dt;
+  }
+}
+
 } // namespace neml2
