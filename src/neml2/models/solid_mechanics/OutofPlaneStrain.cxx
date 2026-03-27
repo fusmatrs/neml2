@@ -55,12 +55,13 @@ OutofPlaneStrain::OutofPlaneStrain(const OptionSet & options)
 }
 
 void
-OutofPlaneStrain::set_value(bool out, bool dout_din, bool d2out_din2)
+OutofPlaneStrain::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
 {
-
+  const auto zero = Scalar::zeros_like(_e33);
+  const auto one = Scalar::ones_like(_e33);
   if (out)
   {
-    const auto zero = Scalar::zeros_like(_e33);
+    
    _Et = SR2::fill(zero,zero,_e33,zero,zero,zero);
   //_Et = SR2(base_stack({e11, e22, e33, zero, zero, e12}, -1));
 
@@ -69,13 +70,10 @@ OutofPlaneStrain::set_value(bool out, bool dout_din, bool d2out_din2)
 
   if (dout_din)
   {
-    if (_e33.is_dependent())
-        _Et.d(_e33) = SR2::create({0, 0, 1, 0, 0, 0},_e33.options());
+    if (_e33.is_dependent())      
+      _Et.d(_e33) = SR2::fill(zero,zero,one,zero,zero,zero);
         
   }
-    if (d2out_din2)
-  {
-    // zero
-  }
+
 }
 } // namespace neml2

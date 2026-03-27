@@ -60,16 +60,22 @@ PlaneStressResidual::PlaneStressResidual(const OptionSet & options)
 void
 PlaneStressResidual::set_value(bool out, bool dout_din, bool /*d2out_din2*/)
 {
-  const auto comps = at::split(_S, 1, -1);
-  
-  const auto & e33 = comps[2];
+  //const auto comps = at::split(_S, 1, -1);
+  const auto zero = Scalar::zeros_like(_e33);
+  const auto one = Scalar::ones_like(_e33);
+  //const auto & e33 = comps[2];
+  const auto msk = SR2::fill(zero,zero,one,zero,zero,zero);
+  auto S = SR2(_S);
 
   if (out)
-    _r = Scalar(e33.reshape(_e33.batch_sizes().concrete()),_e33.batch_sizes());
-
+    //_r = Scalar(e33.reshape(_e33.batch_sizes().concrete()),_e33.batch_sizes());
+    _r = S.inner(msk);
   if (dout_din)
   {
-    _r.d(_S) = SR2::create({0, 0, 1, 0, 0, 0},_S.options());
+    if(_S.is_dependent())
+      _r.d(_S) = SR2::fill(zero,zero,one,zero,zero,zero);
+    if(_e33.is_dependent())
+      _r.d(_e33) = zero;
 
 
     if (currently_solving_nonlinear_system())
