@@ -30,47 +30,29 @@ namespace neml2
 {
 class Scalar;
 
-class DysonCreepRate : public Model
+class OutofPlaneStrainResidual : public Model
 {
 public:
   static OptionSet expected_options();
 
-  DysonCreepRate(const OptionSet & options);
+  OutofPlaneStrainResidual(const OptionSet & options);
 
 protected:
-  /// The value of the yield function
   void set_value(bool out, bool dout_din, bool d2out_din2) override;
+  
+  const Variable<Scalar> & _e33;
+  
+  const Variable<SR2> & _Ee;
+  const Variable<SR2> & _Ep;
 
-  /// Input Stress
-  const Variable<SR2> & _S;
+  const Scalar & _nu;
 
-  /// Input equivalent stress (should be from same stress)
-  const Variable<Scalar> & _seq;
+  //residual
+  Variable<Scalar> & _r;
 
-  /// Input Temeprature
-  const Variable<Scalar> & _T;
 
-  /// Input MX evolution
-  const Variable<Scalar> & _wp;
 
-  /// Input  cavity evolution
-  const Variable<Scalar> & _wn;
 
-  /// Input dislocation evolution
-  const Variable<Scalar> & _wd;
-
-  /// Input primary strain hardening (isotropic)
-  const Variable<Scalar> & _k;
-
-  const Scalar & _s0;
-
-  const Scalar & _edotprime;
-  const Scalar & _qc;
-
-   
-
-  /// Creep strain rate
-  Variable<SR2> & _Ec_dot;
-
+  
 };
 } // namespace neml2
